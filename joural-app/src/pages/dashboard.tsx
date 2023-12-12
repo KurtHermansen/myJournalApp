@@ -1,8 +1,7 @@
-// dashboard.tsx
 import React, { useState, useEffect } from "react";
-const jwt_decode = require("jwt-decode");
 import NewNotebookModal from "../components/NewNotebookModal";
 import NotebookCard from "../components/NotebookCard";
+import { useRouter } from 'next/router';
 
 interface Notebook {
 	id: number;
@@ -11,52 +10,40 @@ interface Notebook {
 }
 
 const DashboardPage = () => {
-	const [activeTab, setActiveTab] = useState("dashboard");
-	const [userName, setUserName] = useState("");
+	const [userName, setUserName] = useState(""); // Update this based on your app's logic
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [notebooks, setNotebooks] = useState<Notebook[]>([]);
+    const router = useRouter();
 
 	useEffect(() => {
-		const token = localStorage.getItem('token');
-		if (token) {
-			try {
-				const decoded = jwt_decode(token);
-				if (decoded && decoded.username) {
-					setUserName(decoded.username);
-					fetchNotebooks(token);
-				}
-			} catch (error) {
-				console.error("Error decoding token:", error);
-			}
+		fetchNotebooks();
+		// Retrieve and set the username from session storage
+		const storedUsername = sessionStorage.getItem("username");
+		if (storedUsername) {
+			setUserName(storedUsername);
 		}
 	}, []);
 
-	const fetchNotebooks = async (token: string) => {
-        console.log("Token:", token);
-		try {
-			const response = await fetch("/api/getNotebook", {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-            console.log("Response Status:", response.status);
-			if (!response.ok) {
-				console.error(
-					"Failed to fetch notebooks, Status:",
-					response.status
-
+	const fetchNotebooks = async () => {
+		const userId = sessionStorage.getItem("userId");
+		console.log("user ID: ", userId);
+		if (userId) {
+			try {
+				const response = await fetch(
+					`/api/getNotebooks?userId=${userId}`
 				);
-				return;
+				if (response.ok) {
+					const notebooksData = await response.json();
+					setNotebooks(notebooksData); // Update state with fetched notebooks
+				} else {
+					console.error("Failed to fetch notebooks");
+				}
+			} catch (error) {
+				console.error("Error fetching notebooks:", error);
 			}
-
-			const data = await response.json();
-            console.log("Fetched Data:", data);
-			console.log("Fetched notebooks:", data); // Log the fetched data
-			setNotebooks(data);
-		} catch (error) {
-			console.error("Error fetching notebooks:", error);
+		} else {
+			console.log("No userId found");
 		}
-
 	};
 
 	const handleNewEntry = (notebookId: number) => {
@@ -82,6 +69,18 @@ const DashboardPage = () => {
 		// Here you can add logic to create a new notebook
 		setIsModalOpen(false);
 	};
+	const refreshNotebooks = () => {
+		fetchNotebooks();
+	};
+
+	const handleLogout = () => {
+		// Clear session storage
+		sessionStorage.clear();
+
+		// Redirect to login page or home page
+		// This depends on how your routing is set up. Adjust as needed.
+		window.location.href = "/";
+	};
 
 	return (
 		<div className="bg-primary-200 min-h-screen flex">
@@ -102,8 +101,15 @@ const DashboardPage = () => {
 			</div>
 
 			<div className="flex-1 bg-primary-100">
-				<header className="bg-primary-400 text-white p-4 font-serif text-3xl">
+				<header className="flex bg-primary-400 text-white p-4 font-serif text-3xl">
 					My Journal - Welcome, {userName}
+					{/* Logout Button */}
+					<button
+						onClick={handleLogout}
+						className="float-right ml-auto bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
+					>
+						Logout
+					</button>
 				</header>
 				<div className="p-6">
 					<div className="flex flex-wrap justify-center">
@@ -136,27 +142,25 @@ const DashboardPage = () => {
 								</div>
 							</div>
 						</div>
-						{notebooks.length === 0 ? (
-							<p>No notebooks found.</p>
-						) : (
-							notebooks.map((notebook) => {
-								console.log("Rendering notebook:", notebook); // Log each notebook being rendered
-								return (
-									<NotebookCard
-										key={notebook.id}
-										title={notebook.title}
-										description={notebook.description}
-										onNewEntry={() =>
-											handleNewEntry(notebook.id)
-										}
-									/>
-								);
-							})
-						)}
+						{notebooks.map((notebook) => {
+                                const handleNotebookClick = () => {
+                                  router.push(`/notebook/${notebook.id}`);
+                                };
+                              
+                                return (
+                                  <div onClick={handleNotebookClick} key={notebook.id}>
+                                    <NotebookCard
+                                      title={notebook.title}
+                                      description={notebook.description}
+                                      onNewEntry={() => handleNewEntry(notebook.id)}
+                                    />
+                                  </div>
+                                )})}
 					</div>
 					<NewNotebookModal
 						isOpen={isModalOpen}
 						onClose={handleModalClose}
+						onRefresh={refreshNotebooks}
 					/>
 				</div>
 			</div>

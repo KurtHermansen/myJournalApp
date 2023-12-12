@@ -2,38 +2,40 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 
 const HomePage = () => {
-	const [username, setUsername] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-	const router = useRouter();
+  const router = useRouter();
 
-	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-
-        try {
-            const response = await fetch("/api/signup", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ username, email, password }),
-            });
-        
-            const data = await response.json();
-        
-            if (response.ok && data.token) {
-              localStorage.setItem('token', data.token);
-              router.push("/dashboard"); // Adjust the redirect route as needed
-            } else {
-              // Optionally, update UI to show error message to user
-              console.error(data.message || 'Signup failed');
-            }
-          } catch (error) {
-            console.error("An error occurred:", error);
-            // Optionally, update UI to show network error message to user
-          }
-        };
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  
+    try {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        sessionStorage.setItem('userId', data.userId);
+        sessionStorage.setItem('username', data.username);
+        // Redirect to dashboard upon successful signup
+        router.push("/dashboard"); // Adjust the redirect route as needed
+      } else {
+        // Optionally, update UI to show error message to user
+        console.error(data.message || 'Signup failed');
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+      // Optionally, update UI to show network error message to user
+    }
+  };
 
 	return (
 		<div className="bg-primary-100 min-h-screen flex items-center justify-center">

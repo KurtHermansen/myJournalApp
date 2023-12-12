@@ -14,21 +14,17 @@ const LoginPage = () => {
       },
       body: JSON.stringify({ email, password }),
     });
+    
     const data = await response.json();
-    console.log(data);
-    if (data.token) {
-        localStorage.setItem('token', data.token);
-        // Redirect or update state as necessary
-      }
-
     if (response.ok) {
-      // Redirect on successful login
-      router.push('/dashboard'); // Replace '/dashboard' with your success page route
+        sessionStorage.setItem('userId', data.userId);
+        sessionStorage.setItem('username', data.username);
+      router.push('/dashboard');
     } else {
-      // Handle errors (show message to user, etc.)
       console.error('Login failed');
     }
   };
+  
 
   return (
     <div className="bg-primary-100 min-h-screen flex items-center justify-center">

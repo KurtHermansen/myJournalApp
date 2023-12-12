@@ -40,6 +40,7 @@ const initializeDatabase = (db: sqlite3.Database) => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         notebook_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
         content TEXT NOT NULL,
         created_at DATETIME NOT NULL,
         FOREIGN KEY (user_id) REFERENCES user(id),

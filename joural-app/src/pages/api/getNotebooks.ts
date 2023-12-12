@@ -1,23 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../database/dbConnect';
-import jwt from 'jsonwebtoken';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      res.status(401).json({ message: 'Unauthorized' });
-      return;
-    }
+    // Get user ID from the query parameters
+    const { userId } = req.query;
 
-    let userId: number;
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || '') as jwt.JwtPayload;
-      userId = decoded.userId;
-      console.log("Decoded User ID:", userId);
-
-    } catch (error) {
-      res.status(403).json({ message: 'Invalid token' });
+    if (!userId) {
+      res.status(400).json({ message: 'User ID is required' });
       return;
     }
 

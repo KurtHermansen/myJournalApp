@@ -1,38 +1,46 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 
 interface NewNotebookModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onRefresh: () => void;
 }
 
-const NewNotebookModal: React.FC<NewNotebookModalProps> = ({ isOpen, onClose }) => {
+const NewNotebookModal: React.FC<NewNotebookModalProps> = ({ isOpen, onClose, onRefresh }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Retrieve the userId from session storage
+    const userId = sessionStorage.getItem('userId');
+    if (!userId) {
+      console.error("No user ID found");
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/createNotebook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, description }),
+        body: JSON.stringify({ userId, title, description }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Handle successful notebook creation
         console.log('Notebook created successfully', data);
+        router.push(`/notebook/${data.notebookId}`);
         setTitle('');
         setDescription('');
         onClose();
+        onRefresh(); // Refresh the notebooks list
       } else {
-        // Handle errors
         console.error(data.message || 'Error creating notebook');
       }
     } catch (error) {
