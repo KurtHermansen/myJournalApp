@@ -11,8 +11,6 @@ My Journal is a personal journaling web application that allows users to capture
 - **Create Notebooks**: Users can create multiple notebooks, each for different purposes or themes.
 - **Add Entries**: Users can add entries to their notebooks, each entry with a title and content.
 - **View Entries**: Click on an entry to view its details in a modal popup.
-- **Edit Entries**: Users have the option to edit their entries to update or correct information.
-- **Delete Entries**: Entries can be deleted if no longer needed.
 - **Responsive Design**: Accessible on various devices with a layout that adapts to screen sizes.
 - **Logout Functionality**: Users can securely logout from their session.
 
@@ -21,7 +19,7 @@ My Journal is a personal journaling web application that allows users to capture
 - React
 - Next.js
 - SQLite (for database management)
-- CSS for styling
+- Tailwind CSS for styling
 
 ## Installation and Setup
 
@@ -38,23 +36,6 @@ After launching the application, users can sign up to create a new account or lo
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
